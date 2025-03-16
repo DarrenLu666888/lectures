@@ -19,13 +19,18 @@ from torch.profiler import profile, record_function, ProfilerActivity
 def trace_handler(prof):
     print(prof.key_averages().table(
         sort_by="self_cuda_time_total", row_limit=-1))
-    prof.export_chrome_trace("/tmp/test_trace_" + str(prof.step_num) + ".json")
+    prof.export_chrome_trace("tmp/test_trace_" + str(prof.step_num) + ".json")
 
 with torch.profiler.profile(
     activities=[
         torch.profiler.ProfilerActivity.CPU,
-        torch.profiler.ProfilerActivity.CUDA,
+        torch.profiler.ProfilerActivity.CUDA
     ],
+    # record_shapes=True,
+    # profile_memory=True,
+    # with_stack=True,
+    # with_flops=True,
+    # with_modules=True,
 
     # In this example with wait=1, warmup=1, active=2, repeat=1,
     # profiler will skip the first step/iteration,
@@ -44,7 +49,12 @@ with torch.profiler.profile(
     # on_trace_ready=torch.profiler.tensorboard_trace_handler('./log')
     # used when outputting for tensorboard
     ) as p:
+        N=1000
+        device = torch.device('cuda' if torch.cuda.is_available() else
+                              'cpu')
+        print(device)
         for iter in range(10):
-            torch.square(torch.randn(10000, 10000).cuda())
+            torch.matmul(torch.randn(N, N).to(device),torch.randn(N, N).to(device))
             # send a signal to the profiler that the next iteration has started
+            torch.cuda.synchronize()  # 同步 CUDA 操作
             p.step()

@@ -96,4 +96,4 @@ def benchmark(M, N, provider):
     return gbps(ms), gbps(max_ms), gbps(min_ms)
 
 
-benchmark.run(show_plots=True, print_data=True, save_path='.')
+benchmark.run(show_plots=True, print_data=True, save_path='./triton_res')

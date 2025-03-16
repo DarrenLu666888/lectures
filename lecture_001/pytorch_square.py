@@ -29,25 +29,19 @@ def square_2(a):
 def square_3(a):
     return a ** 2
 
-time_pytorch_function(torch.square, b)
-time_pytorch_function(square_2, b)
-time_pytorch_function(square_3, b)
-
-print("=============")
-print("Profiling torch.square")
-print("=============")
-
-# Now profile each function using pytorch profiler
-with torch.profiler.profile() as prof:
-    torch.square(b)
-
-print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=10))
+print(time_pytorch_function(torch.square, b))
+print(time_pytorch_function(square_2, b))
+print(time_pytorch_function(square_3, b))
 
 print("=============")
 print("Profiling a * a")
 print("=============")
 
-with torch.profiler.profile() as prof:
+with torch.profiler.profile(
+    activities=[
+        torch.profiler.ProfilerActivity.CPU,
+        torch.profiler.ProfilerActivity.CUDA,
+    ]) as prof:
     square_2(b)
 
 print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=10))
@@ -56,7 +50,25 @@ print("=============")
 print("Profiling a ** 2")
 print("=============")
 
-with torch.profiler.profile() as prof:
+with torch.profiler.profile(
+    activities=[
+        torch.profiler.ProfilerActivity.CPU,
+        torch.profiler.ProfilerActivity.CUDA,
+    ]) as prof:
     square_3(b)
+
+print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=10))
+
+print("=============")
+print("Profiling torch.square")
+print("=============")
+
+# Now profile each function using pytorch profiler
+with torch.profiler.profile(
+    activities=[
+        torch.profiler.ProfilerActivity.CPU,
+        torch.profiler.ProfilerActivity.CUDA,
+    ]) as prof:
+    torch.square(b)
 
 print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=10))
