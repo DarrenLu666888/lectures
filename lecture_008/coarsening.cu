@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#define N 1024
+#define N 10240000
 #define THREADS_PER_BLOCK 256 // This is just an example block size
 
 // Original vector addition kernel without coarsening
